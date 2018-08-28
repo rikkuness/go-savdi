@@ -7,17 +7,27 @@ import (
 	"net"
 )
 
-var ErrRejectNotRecognised = errors.New("no")
+var (
+	ErrNotRecognised          = errors.New("request was not recognised")
+	ErrIncorrectVersion       = errors.New("the SSSP version number was incorrect")
+	ErrOptionsError           = errors.New("there was an error in the OPTIONS list")
+	ErrTooMuchData            = errors.New("SCANDATA was trying to send too much data")
+	ErrNotPermitted           = errors.New("the request is not permitted")
+	ErrServerClosedConnection = errors.New("server closed the connection")
+)
 
+// Client instance
 type Client struct {
 	version string
 	socket  net.Conn
 }
 
+// GetVersion returns the SSSP version
 func (c *Client) GetVersion() string {
 	return c.version
 }
 
+// Close the connection gracefully
 func (c *Client) Close() {
 	fmt.Fprintln(c.socket, "BYE")
 	var resp string
@@ -28,6 +38,7 @@ func (c *Client) Close() {
 	return
 }
 
+// NewClient creates a new connection to SAV-DI
 func NewClient(uri string) (c Client, err error) {
 	c.socket, err = net.Dial("tcp", uri)
 	if err != nil {
