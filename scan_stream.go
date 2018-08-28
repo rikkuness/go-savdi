@@ -30,12 +30,12 @@ func min(a, b int) int {
 
 // ScanStream calls SCANDATA against a byte array and returns a ScanResult
 func (c *Client) ScanStream(input []byte) (result ScanResult, err error) {
-	_, err = fmt.Fprintln(c.socket, fmt.Sprintf("%s SCANDATA %d", c.version, len(input)))
+	_, err = fmt.Fprintln(c.Socket, fmt.Sprintf("%s SCANDATA %d", c.Version, len(input)))
 	if err != nil {
 		return result, err
 	}
 
-	scanner := bufio.NewScanner(c.socket)
+	scanner := bufio.NewScanner(c.Socket)
 
 	scanner.Scan()
 	line := scanner.Text()
@@ -59,7 +59,7 @@ func (c *Client) ScanStream(input []byte) (result ScanResult, err error) {
 
 	var chunkSize = 4096
 	for i := 0; i < len(input); i += chunkSize {
-		fmt.Fprintf(c.socket, "%s", input[i:min(i+chunkSize, len(input))])
+		fmt.Fprintf(c.Socket, "%s", input[i:min(i+chunkSize, len(input))])
 	}
 
 	for scanner.Scan() {

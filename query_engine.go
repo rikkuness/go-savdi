@@ -17,19 +17,19 @@ type EngineInfo struct {
 
 // QueryEngine queries the SAVI engine for configuration
 func (c *Client) QueryEngine() (info EngineInfo, err error) {
-	_, err = fmt.Fprintln(c.socket, fmt.Sprintf("%s QUERY ENGINE", c.version))
+	_, err = fmt.Fprintln(c.Socket, fmt.Sprintf("%s QUERY ENGINE", c.Version))
 	if err != nil {
 		return info, err
 	}
 
-	scanner := bufio.NewScanner(c.socket)
+	scanner := bufio.NewScanner(c.Socket)
 
 	for scanner.Scan() {
 		line := scanner.Text()
 		kv := strings.Split(line, ": ")
 
 		if len(kv) != 2 {
-			continue
+			break
 		}
 
 		k, v := kv[0], kv[1]
@@ -43,6 +43,8 @@ func (c *Client) QueryEngine() (info EngineInfo, err error) {
 			info.VirusCount, _ = strconv.Atoi(v)
 		case "virusdatachecksum":
 			info.VirusDataChecksum = v
+		case "":
+			break
 		}
 	}
 

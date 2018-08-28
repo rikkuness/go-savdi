@@ -18,37 +18,37 @@ var (
 
 // Client instance
 type Client struct {
-	version string
-	socket  net.Conn
+	Version string
+	Socket  net.Conn
 }
 
 // GetVersion returns the SSSP version
 func (c *Client) GetVersion() string {
-	return c.version
+	return c.Version
 }
 
 // Close the connection gracefully
 func (c *Client) Close() {
-	fmt.Fprintln(c.socket, "BYE")
+	fmt.Fprintln(c.Socket, "BYE")
 	var resp string
-	fmt.Fscanln(c.socket, &resp)
+	fmt.Fscanln(c.Socket, &resp)
 	if resp == "BYE" {
-		c.socket.Close()
+		c.Socket.Close()
 	}
 	return
 }
 
 // NewClient creates a new connection to SAV-DI
 func NewClient(uri string) (c Client, err error) {
-	c.socket, err = net.Dial("tcp", uri)
+	c.Socket, err = net.Dial("tcp", uri)
 	if err != nil {
 		return c, err
 	}
 
-	scanner := bufio.NewScanner(c.socket)
+	scanner := bufio.NewScanner(c.Socket)
 	for scanner.Scan() {
 		// Parse this
-		c.version = scanner.Text()
+		c.Version = scanner.Text()
 
 		if err := scanner.Err(); err != nil {
 			return c, err
