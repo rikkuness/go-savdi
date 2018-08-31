@@ -23,6 +23,9 @@ func createFakeClient() savdi.Client {
 				for s.Scan() {
 					cmd := s.Text()
 					switch cmd {
+					case "BYE":
+						fmt.Fprintf(c, "BYE\n\n")
+						server.Close()
 					case "SSSP/1.0 QUERY ENGINE":
 						fmt.Fprintf(c, "engineversion: fake\nsavversion: fake\nviruscount: 1\n\n")
 					case "SSSP/1.0 SCANDATA":
@@ -39,8 +42,18 @@ func createFakeClient() savdi.Client {
 	return savdi.Client{"SSSP/1.0", client}
 }
 
+func TestSSSPVersion(t *testing.T) {
+	sophos := createFakeClient()
+	defer sophos.Close()
+
+	if v := sophos.GetVersion(); v != "SSSP/1.0" {
+		t.Error("Did not get expected version")
+	}
+}
+
 func TestQueryEngine(t *testing.T) {
 	sophos := createFakeClient()
+	defer sophos.Close()
 
 	engine, err := sophos.QueryEngine()
 	if err != nil {

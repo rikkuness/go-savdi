@@ -2,6 +2,7 @@ package savdi
 
 import (
 	"bufio"
+	"errors"
 	"fmt"
 	"regexp"
 )
@@ -40,7 +41,15 @@ func (c *Client) ScanStream(input []byte) (result ScanResult, err error) {
 	scanner.Scan()
 	line := scanner.Text()
 
+	if line == "" {
+		return result, ErrServerClosedConnection
+	}
+
 	r := scanResponsePattern.FindStringSubmatch(line)
+
+	if len(r) < 3 {
+		return result, errors.New("erroring")
+	}
 
 	if r[2] == "REJ" {
 		switch r[3] {

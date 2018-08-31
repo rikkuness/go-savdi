@@ -47,11 +47,20 @@ func NewClient(uri string) (c Client, err error) {
 
 	scanner := bufio.NewScanner(c.Socket)
 	for scanner.Scan() {
-		// Parse this
-		c.Version = scanner.Text()
-
 		if err := scanner.Err(); err != nil {
 			return c, err
+		}
+
+		line := scanner.Text()
+		if line == "" {
+			return c, errors.New("no response")
+		}
+
+		r := scanResponsePattern.FindStringSubmatch(line)
+
+		switch r[2] {
+		case "OK":
+			c.Version = r[3]
 		}
 
 		break
